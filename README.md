@@ -2,6 +2,7 @@
 - [1장 JPA 소개](#1장-JPA-소개)
 - [2장 JPA 시작](#2장-JPA-시작)
 - [3장 영속성 관리](#3장-영속성-관리)
+- [4장 엔티티 매핑](#4장-엔티티-매핑)
 
 ## 1장 JPA 소개
 
@@ -139,4 +140,61 @@ JPA를 사용해야 하는 이유
 병합
 - 준영속, 비영속 상태의 엔티티를 다시 영속 상태로 변경하는 방법
 - 준영속, 비영속 상태의 엔티티를 받아서 그 정보로 새로운 영속 상태의 엔티티를 반환
+
+## 4장 엔티티 매핑
+
+스키마 자동 생성
+- persistence.xml에 <property name="hibernate.hbm2ddl.auto" value="create" /> 속성 추가
+- 애플리케이션 실행 시점에 value 값에 따라 DDL 수행
+- create : 기존 테이블을 삭제하고 새로 생성한다. DROP + CREATE
+- create-drop : create 속성에 추가로 애플리케이션을 종료할 때 생성한 DDL을 제거한다. DROP + CREATE + DROP
+- update : 데이터베이스 테이블과 엔티티 매핑정보를 비교해서 변경 사항만 수정한다.
+- validate: 데이터베이스 테이블과 엔티티 매핑정보를 비교해서 차이가 있으면 경고를 남기고 애플리케이션을 실행하지 않는다.
+- none : 자동 생성 기능을 사용하지 않기 위한 유효하지 않은 옵션
+
+@Entity
+- 테이블과 매핑할 클래스
+- 기본 생성자는 필수
+- final, enum, interface, inner 클래스에는 사용할 수 없다.
+- 저장할 필드에 final을 사용하면 안 된다.
+
+@Table
+- 엔티티와 매핑할 테이블을 지정
+- 생략하면 매핑한 엔티티 이름을 테이블 이름으로 사용
+- uniqueContraints 속성으로 유니크 제약조건 DDL 생성
+
+@Column
+- 객체 필드를 테이블 컬럼에 매핑
+- nullable 속성으로 null 값의 허용 여부를 설정하는 DDL 생성, 기본 값은 true
+- @Column 생략하여도 기본값으로 적용되지만, 자바 기본 타입인 경우에는 null값을 입력할 수 없다. ( 생성된 DDL에 not null 조건이 자동으로 붙는다. )
+
+@Enumerated
+- 자바의 enum 타입을 매핑
+
+@Temporal
+- 날짜 타입을 매핑
+- TemporalType.DATE : 날짜, 데이터베이스 date 타입과 매핑
+- TemporalType.TIME : 시간, 데이터베이스 time 타입과 매핑
+- TemporalType.TIMESTAMP : 날짜와 시간, 데이터베이스 timestamp 타입과 매핑
+
+@Lob
+- BLOB, CLOB 타입과 매핑
+
+@Transient
+- 필드를 매핑하지 않을 때 사용
+- 데이터베이스에 저장하지 않고 조회하지도 않는다.
+- 객체에 임시로 어떤 값을 보관하고 싶을 때 사용
+
+@Access
+- JPA가 엔티티 데이터에 접근하는 방식을 지정
+- AccessType.FIELD : 필드 접근, 필드에 직접 접근하는 것으로 필드 접근 권한이 private이어도 접근할 수 있다.
+- AccessType.PROPERTY : 프로퍼티 접근, 접근자(Getter)를 사용한다.
+
+기본 키 매핑
+- 직접 할당 : em.persist() 를 호출하기 전에 애플리케이션에서 직접 식별자 값을 할당해야 한다. 만약 식별자 값이 없으면 예외 발생
+- SEQUENCE : 데이터베이스 오브젝트인 시퀀스에서 식별자 값을 획득한 후 영속성 컨텍스트에 저장
+- TABLE : 데이터베이스 시퀀스 생성용 테이블에서 식별자 값을 획득한 후 영속성 컨텍스트에 저장
+- IDENTITY : 테이터베이스에 엔티티를 저장해서 식별자 값을 획득한 후 영속성 컨텍스트에 저장
+- AUTO : 선택한 데이터베이스 방언에 따라 IDENTITY, SEQUENCE, TABLE 전략 중 하나를 자동으로 선택
+
 
